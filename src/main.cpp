@@ -8,5 +8,6 @@ void setup() {
 
 void loop() {
     // Serial.printf("Acc: %.2f Speed: %.1f m/s, distance: %.1f m\n", inter.acc, inter.speed, inter.distance);
+    // Serial.printf("Inclinaison: %.2f, Pente: %.2f\n", inter.roll_angle, inter.road_camber);
     // delay(250);
 }
