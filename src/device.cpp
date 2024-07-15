@@ -19,8 +19,22 @@ void Device::setup() {
 
 void Device::loop() {
     read_data();
-    calibrate_mpu_and_update_g_direction();
+    calculate_speed_and_distance();
+    // calibrate_mpu_and_update_g_direction();
     // _calculate_Xspeed_and_Xdistance();
+}
+
+void Device::calculate_speed_and_distance() {
+    inter.speed += (ax-ax0)*dt;
+    inter.speed = abs(inter.speed);
+    inter.distance += inter.speed*dt;
+    static unsigned long saved_time = millis();
+    if (millis() - saved_time > 250) {
+        Serial.printf("Speed: %.2f, distance: %.2f\n", inter.speed, inter.distance);
+        saved_time = millis();
+    }
+    ax0 = ax;
+    t0 = t;
 }
 
 void Device::read_data() {

@@ -69,6 +69,7 @@ class Device : public MyTask{
         // float _dax, _ax0;
         // float _dt, _t, _t0;
         // bool time_initialized;
+        void calculate_speed_and_distance();
 };
 
 extern Device device;
