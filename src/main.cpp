@@ -7,4 +7,6 @@ void setup() {
 }
 
 void loop() {
+    // Serial.printf("Acc: %.2f Speed: %.1f m/s, distance: %.1f m\n", inter.acc, inter.speed, inter.distance);
+    // delay(250);
 }

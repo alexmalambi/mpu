@@ -3,7 +3,10 @@
 
 
 class Inter {
-
+    public:
+        float speed = 0.0;
+        float distance = 0.0;
+        float acc = 0.0;
 };
 
 extern Inter inter;

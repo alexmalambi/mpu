@@ -26,7 +26,7 @@ public:
 
 protected:
 private:
-    uint16_t task_number;
+    static uint16_t task_number;
 };
 
 #endif /* MYTASK_H */
