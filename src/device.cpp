@@ -18,10 +18,124 @@ void Device::setup() {
 }
 
 void Device::loop() {
-    read_data();
-    calculate_speed_and_distance();
-    // calibrate_mpu_and_update_g_direction();
+    calculate_ultime_speed();
+    // print_acc();
+    // calculate_OM_speed();
+    // calculate_Xspeed();
+    // read_data();
+    // calculate_speed_and_distance();
+    
     // _calculate_Xspeed_and_Xdistance();
+}
+
+void Device::calculate_ultime_speed() {
+    t = micros();
+    mpu.getAcceleration(&Ax, &Ay, &Az);
+    ax = Ax*G/16384.00;
+    ay = Ay*G/16384.00;
+    az = Az*G/16384.00;
+    a = sqrt(ax*ax + ay*ay + az*az);
+    static bool init_acc = false;
+    if (!init_acc) {
+        a0 = a;
+        ax0 = ax;
+        ay0 = ay;
+        az0 = az;
+        t0 = t;
+        init_acc = true;
+    }
+    dt = (t - t0) / 1000000.0;
+    t0 = t;
+    vx += (ax*ax0 < 0)? (ax+ax0)*dt : (ax-ax0)*dt;
+    vy += (ay*ay0 < 0)? (ay+ay0)*dt : (ay-ay0)*dt;
+    vz += (az*az0 < 0)? (az+az0)*dt : (az-az0)*dt;
+    // static bool init_spe = false;
+    // if (!init_spe) {
+    //     vx0 = vx;
+    //     vy0 = vy;
+    //     vz0 = vz;
+    //     init_spe = true;
+    // }
+    // vx += vx+vx0;
+    // vy += vy+vy0;
+    // vz += vz+vz0;
+
+    // vx0 = vx;
+    // vy0 = vy;
+    // vz0 = vz;
+    ax0 = ax;
+    ay0 = ay;
+    az0 = az;
+    inter.speed = sqrt(vx*vx + vy*vy + vz*vz);
+    // inter.speed = abs(inter.speed);
+    Serial.printf("Speed: %.2f m/s\n", inter.speed);
+}
+
+void Device::determinate_g_value() {
+
+}
+
+void Device::print_acc() {
+    mpu.getAcceleration(&Ax, &Ay, &Az);
+    ax = Ax/16384.00;
+    ay = Ay/16384.00;
+    az = Az/16384.00;
+    a = sqrt(ax*ax + ay*ay + az*az);
+    Serial.printf("a (%.2f, %.2f, %.2f) = %.2f g\n", ax, ay, az, a);
+}
+
+void Device::calculate_OM_speed() {
+    t = micros();
+    mpu.getAcceleration(&Ax, &Ay, &Az);
+    ax = Ax*G/16384.00;
+    ay = Ay*G/16384.00;
+    az = Az*G/16384.00;
+    a = sqrt(ax*ax + ay*ay + az*az);
+    static bool init;
+    if (!init) {
+        a0 = a;
+        t0 = t;
+        init = true;
+    }
+    dt = (t - t0) / 1000000.0;
+    t0 = t;
+    inter.speed += (ax-sqrt(abs(a*a-ay*ay-az*az)))*dt;
+    inter.speed = abs(inter.speed);
+    inter.distance += inter.speed*dt;
+    a0 = a;
+    static unsigned long time = millis();
+    if (millis() - time > 250) {
+        Serial.printf("Speed: %.2f km/h, distance: %.2f m\n", inter.speed*3.6,inter.distance);
+        time = millis();
+    }
+}
+
+void Device::calculate_Xspeed() {
+    t = micros();
+    mpu.getAcceleration(&Ax, &Ay, &Az);
+    ax = Ax*G/16384.00;
+    ay = Ay*G/16384.00;
+    ay = Az*G/16384.00;
+    a = sqrt(ax*ax + ay*ay + az*az);
+    static bool init;
+    if (!init) {
+        ax0 = ax;
+        t0 = t;
+        init = true;
+    }
+    dt = (t - t0) / 1000000.0;
+    t0 = t;
+    // inter.speed += (ax*ax0<0)? (ax+ax0)*dt : (ax-ax0)*dt;
+    // inter.speed += (ax-ax0)*dt;
+    inter.speed +=(ax-sqrt(abs(9.81*9.81-(ay*ay)-(az*az))))*dt;
+    inter.speed = abs(inter.speed);
+    ax0 = ax;
+    static unsigned long time = millis();
+    if (millis() - time > 250) {
+        Serial.printf("Speed: %.2f km/h\n", inter.speed*3.6);
+        Serial.printf("Acceleration: (%.2f, %.2f, %.2f) = %.2f g\n", ax, ay, az, a);
+        time = millis();
+    }
 }
 
 void Device::calculate_speed_and_distance() {

@@ -42,7 +42,9 @@ class Device : public MyTask{
         //@brief Magnetic field component in LSB
         int16_t Bx, By, Bz;
         //@brief Acceleration component in m/s^2.
-        float a, ax, ay, az, ax0, ay0, az0;
+        float a0, a, ax, ay, az, ax0, ay0, az0;
+        //@brief Velocity component in m/s.
+        float v0, v, vx, vy, vz, vx0, vy0, vz0;
         //@brief Angular velocity component in deg/s.
         float w, wx, wy, wz, wx0, wy0, wz0;
         //@brief Magnetic field component in uTesla.
@@ -70,6 +72,11 @@ class Device : public MyTask{
         // float _dt, _t, _t0;
         // bool time_initialized;
         void calculate_speed_and_distance();
+        void calculate_Xspeed();
+        void determinate_g_value();
+        void calculate_OM_speed();
+        void print_acc();
+        void calculate_ultime_speed();
 };
 
 extern Device device;
